@@ -18,7 +18,6 @@ stdenv.mkDerivation rec {
   '';
 
   installPhase = ''
-    DATA_DIR="$out/lib"
     mkdir -p "$out/lib"
     mv "$PWD" "$out/lib/matrix-appservice-irc"
     mkdir -p "$out/bin"
