@@ -98,6 +98,7 @@ let
       maxFiles: ${toString cfg.logging_maxFiles}
     databaseUri: "${cfg.databaseUri}"
     servers: { ${concatStringsSep "," (mapAttrsToList mkServer cfg.servers)} }
+    ${optionalString (cfg.passwordEncryptionKeyPath != null) "passwordEncryptionKeyPath: ${cfg.passwordEncryptionKeyPath}"}
     ${optionalString (cfg.statsd != null) ''
     statsd:
       hostname: "${cfg.statsd.hostname}"
@@ -594,6 +595,16 @@ in {
           to dump .db files to. This is relative to the project directory.
         '';
         default = "nedb:///var/lib/matrix-appservice-irc/data";
+      };
+      passwordEncryptionKeyPath = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          The path to the RSA PEM-formatted private key to use when encrypting IRC passwords
+          for storage in the database. Passwords are stored by using the admin room command
+          `!storepass server.name passw0rd`. When a connection is made to IRC on behalf of
+          the Matrix user, this password will be sent as the server password (PASS command).
+        '';
       };
     };
   };
