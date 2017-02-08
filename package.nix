@@ -1,13 +1,13 @@
 { stdenv, fetchurl, fetchFromGitHub, nodejs, git, python, icu }:
 stdenv.mkDerivation rec {
   name = "matrix-appservice-irc-${version}";
-  version = "0.7.0";
+  version = "0.7.1";
 
   src = fetchFromGitHub {
     owner = "matrix-org";
     repo = "matrix-appservice-irc";
     rev = "${version}";
-    sha256 = "137qmi0xbhxwli969aj5lf71i7myiwipv7rcb6rsfnqcapnc1q0w";
+    sha256 = "0ww5ss0782ha0ry7l1h5sq1d2i3cldgqxmly6iyzd584gl3mjjv0";
   };
 
   buildInputs = [ nodejs git python icu ];
