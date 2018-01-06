@@ -107,7 +107,6 @@ let
     ''}
   '';
   registration = pkgs.runCommand "app-service-irc-config.yaml" { preferLocalBuild = true; } ''
-    cd ${package}/lib/matrix-appservice-irc
     ${package}/bin/matrix-appservice-irc -r -f $out -u ${cfg.url} -c ${configFile} -l ircbot
   '';
   matrixToIrc = types.submodule {
@@ -635,7 +634,7 @@ in {
       serviceConfig = {
         PermissionsStartOnly = true;
         ExecStart = "${package}/bin/matrix-appservice-irc -c ${configFile} -f ${registration} -p ${toString cfg.port}";
-        WorkingDirectory = "${package}/lib/matrix-appservice-irc";
+        WorkingDirectory = "${package}/lib/node_modules/matrix-appservice-irc";
         User = "matrix-appservice-irc";
         Group = "matrix-appservice-irc";
       };
