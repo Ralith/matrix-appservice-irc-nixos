@@ -175,6 +175,13 @@ in {
         '';
         default = 7555;
       };
+      stateDir = mkOption {
+        type = types.str;
+        description = ''
+          The directory where matrix-appservice-irc will keep its stateful data.
+        '';
+        default = "/var/lib/matrix-appservice-irc";
+      };
       homeserver_url = mkOption {
         type = types.str;
         description = "The URL to the home server for client-server API calls.";
@@ -594,7 +601,7 @@ in {
           The nedb database URI to connect to. This is the name of the directory
           to dump .db files to. This is relative to the project directory.
         '';
-        default = "nedb:///var/lib/matrix-appservice-irc/data";
+        default = "nedb://${cfg.stateDir}/data";
       };
       passwordEncryptionKeyPath = mkOption {
         type = types.nullOr types.str;
@@ -622,8 +629,8 @@ in {
       after = [ "matrix-synapse.service" ];
       wantedBy = [ "multi-user.target" ];
       preStart = ''
-        mkdir -m 0700 -p /var/lib/matrix-appservice-irc
-        chown matrix-appservice-irc:matrix-appservice-irc /var/lib/matrix-appservice-irc
+        mkdir -m 0700 -p ${cfg.stateDir}
+        chown matrix-appservice-irc:matrix-appservice-irc ${cfg.stateDir}
       '';
       serviceConfig = {
         PermissionsStartOnly = true;
