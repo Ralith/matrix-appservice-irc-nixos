@@ -5,6 +5,6 @@ with (import nixpkgs { inherit system; });
 (import ((fetchFromGitHub {
   owner = "svanderburg";
   repo = "node2nix";
-  rev = "acc5a50c2e9a838b1ae9e7dcbf53898b4e4ea9c5";
-  sha256 = "1xlrkiihl6716ac8drv9pzix7n4npgwphkyxsy51baa94p81jrzi";
+  rev = "add2ea4c69851507b3ae74d7832dea07f5af625e";
+  sha256 = "13sbggxvprhhkil749p4wdbmvwq868hf1707yda6zgkv5x4yxm5p";
 })) {}).package
