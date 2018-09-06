@@ -21,6 +21,9 @@ let
     }
   }'';
   mkServer = address: s: ''"${address}": {
+    ${optionalString (s.name != null) ''
+    name: "${s.name}",
+    ''}
     port: ${toString s.port},
     ssl: ${boolToStr s.ssl},
     sslselfsign: ${boolToStr s.sslselfsign},
@@ -38,7 +41,8 @@ let
       joinChannelsIfNoUsers: ${boolToStr s.botConfig_joinChannelsIfNoUsers}
     },
     privateMessages: {
-      enabled: ${boolToStr s.privateMessages_enabled}
+      enabled: ${boolToStr s.privateMessages_enabled},
+      federate: ${boolToStr s.privateMessages_federate}
     },
     dynamicChannels: {
       enabled: ${boolToStr s.dynamicChannels_enabled},
@@ -79,12 +83,15 @@ let
         prefix: "${s.ircClients_ipv6_prefix}"
       },
       ''}
-      idleTimeout: ${toString s.ircClients_idleTimeout}
+      idleTimeout: ${toString s.ircClients_idleTimeout},
+      lineLimit: ${toString s.ircClients_lineLimit},
+      userModes: "${s.ircClients_userModes}"
     }
   }'';
   configFile = pkgs.writeText "config.yaml" ''
   homeserver:
     url: "${cfg.homeserver_url}"
+    ${optionalString (cfg.homeserver_mediaUrl != null) ''media_url: "${cfg.homeserver_mediaUrl}"''}
     domain: "${cfg.homeserver_domain}"
   ircService:
     ident:
@@ -187,6 +194,15 @@ in {
         description = "The URL to the home server for client-server API calls.";
         default = "http://localhost:8008";
       };
+      homeserver_mediaUrl = mkOption {
+        type = types.nullOr types.str;
+        description = ''
+          The URL of the homeserver hosting media files. This is only used to transform
+          mxc URIs to http URIs when bridging m.room.[file|image] events. Optional. By
+          default, this is the homeserver URL, specified above.
+        '';
+        default = null;
+      };
       homeserver_domain = mkOption {
         type = types.str;
         description = ''
@@ -196,6 +212,17 @@ in {
       };
       servers = mkOption {
         type = types.attrsOf (types.submodule { options = {
+          name = mkOption {
+            type = types.nullOr types.str;
+            description = ''
+              A human-readable short name. This is used to label IRC status rooms
+              where matrix users control their connections.
+              E.g. 'ExampleNet IRC Bridge status'.
+              It is also used in the Third Party Lookup API as the instance `desc`
+              property, where each server is an instance.
+            '';
+            default = null;
+          };
           port = mkOption {
             type = types.int;
             description = ''
@@ -291,6 +318,15 @@ in {
             type = types.bool;
             description = ''
               Enable the ability for PMs to be sent to/from IRC/Matrix.
+            '';
+            default = true;
+          };
+          privateMessages_federate = mkOption {
+            type = types.bool;
+            description = ''
+              Should created Matrix PM rooms be federated? If false, only users on the
+              HS attached to this AS will be able to interact with this room.
+              Optional.
             '';
             default = true;
           };
@@ -502,6 +538,29 @@ in {
               server is mirroring matrix membership lists to IRC.
             '';
             default = 172800;
+          };
+          ircClients_lineLimit = mkOption {
+            type = types.int;
+            description = ''
+              The number of lines to allow being sent by the IRC client that has received
+              a large block of text to send from matrix. If the number of lines that would
+              be sent is > lineLimit, the text will instead be uploaded to matrix and the
+              resulting URI is treated as a file. As such, a link will be sent to the IRC
+              side instead of potentially spamming IRC and getting the IRC client kicked.
+            '';
+            default = 3;
+          };
+          ircClients_userModes = mkOption {
+            type = types.str;
+            description = ''
+              A list of user modes to set on every IRC client. For example, "RiG" would set
+              +R, +i and +G on every IRC connection when they have successfully connected.
+              User modes vary wildly depending on the IRC network you're connecting to,
+              so check before setting this value. Some modes may not work as intended
+              through the bridge e.g. caller ID as there is no way to /ACCEPT.
+            '';
+            example = "R";
+            default = "";
           };
         };});
         description = ''
