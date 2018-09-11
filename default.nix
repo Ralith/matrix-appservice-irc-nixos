@@ -24,6 +24,7 @@ let
     port: ${toString s.port},
     ssl: ${boolToStr s.ssl},
     sslselfsign: ${boolToStr s.sslselfsign},
+    sasl: ${boolToStr s.sasl},
     ${optionalString (s.password != null) ''
     password: "${s.password}",
     ''}
@@ -214,6 +215,15 @@ in {
             description = ''
               Whether or not IRC server is using a self-signed cert or not
               providing CA chain
+            '';
+            default = false;
+          };
+          sasl = mkOption {
+            type = types.bool;
+            description = ''
+              Should the connection attempt to identify via SASL (if a server or
+              user password is given) If false, this will use PASS instead. If
+              SASL fails, we do not fallback to PASS.
             '';
             default = false;
           };
