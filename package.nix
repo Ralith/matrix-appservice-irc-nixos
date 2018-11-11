@@ -6,4 +6,4 @@
     inherit stdenv python2 utillinux runCommand writeTextFile fetchurl fetchgit;
   };
   inherit system nodejs;
-})."matrix-appservice-irc-0.11.1"
+})."matrix-appservice-irc-0.11.2"
